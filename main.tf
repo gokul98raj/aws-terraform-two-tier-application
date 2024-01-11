@@ -11,10 +11,11 @@ resource "aws_vpc" "main" {
 
 #subnets
 resource "aws_subnet" "public_subnet" {
-  vpc_id            = aws_vpc.main.id
-  count             = 2
-  cidr_block        = element(var.public_subnet, count.index)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  vpc_id                  = aws_vpc.main.id
+  count                   = 2
+  cidr_block              = element(var.public_subnet, count.index)
+  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
+  map_public_ip_on_launch = true
 
   tags = {
     name = "public_subnet ${count.index + 1}"
@@ -65,7 +66,8 @@ resource "aws_flow_log" "vpc_logs" {
 }
 
 resource "aws_s3_bucket" "flow_log_bucket" {
-  bucket = "flow-log-bucket-terraform"
+  bucket        = "flow-log-bucket-terraform"
+  force_destroy = true
 
   tags = {
     name = "flow_log_bucket"
@@ -158,13 +160,21 @@ resource "aws_launch_template" "app_launch_template" {
 
 #autoscaling group
 resource "aws_autoscaling_group" "app_auto_scaling" {
-  name = "app_auto_scaling"
-  min_size             = 2
-  max_size             = 5
-  desired_capacity     = 2
-  launch_configuration = aws_launch_template.app_launch_template.name
+  name             = "app_auto_scaling"
+  min_size         = 2
+  max_size         = 5
+  desired_capacity = 2
   //vpc_zone_identifier = [aws_subnet.public_subnet.id]
   vpc_zone_identifier = aws_subnet.public_subnet[*].id
+
+  launch_template {
+    id      = aws_launch_template.app_launch_template.id
+    version = "$latest"
+  }
+
+  target_group_arns = [ 
+    aws_lb.app_load_balancer.arn
+   ]
 }
 
 #load balancer
@@ -173,7 +183,7 @@ resource "aws_lb" "app_load_balancer" {
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.load_balancer_security_group.id]
-  subnets                    = var.public_subnet
+  subnets                    = aws_subnet.public_subnet[*].id
   enable_deletion_protection = true
 
 }
@@ -229,6 +239,8 @@ resource "aws_db_instance" "app_rds" {
   //manage_master_user_password = true
   password = "admin123"
   //deletion_protection = true
+  skip_final_snapshot = true
+
 
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
