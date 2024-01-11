@@ -45,3 +45,15 @@ variable "rds_identifier_name" {
   type        = string
   default     = "app-rds"
 }
+
+variable "rds_username" {
+  description = "rds username"
+  type = string
+  default = "admin"
+}
+
+variable "rds_password" {
+  description = "rds password"
+  type = string
+  default = "Admin123"
+}

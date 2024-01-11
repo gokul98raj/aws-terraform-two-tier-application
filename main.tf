@@ -169,12 +169,15 @@ resource "aws_autoscaling_group" "app_auto_scaling" {
 
   launch_template {
     id      = aws_launch_template.app_launch_template.id
-    version = "$latest"
+    version = "$Latest"
   }
 
   target_group_arns = [ 
     aws_lb.app_load_balancer.arn
    ]
+
+   health_check_grace_period = 300
+   health_check_type = "ELB"
 }
 
 #load balancer
@@ -198,7 +201,7 @@ resource "aws_lb_target_group" "app_lb_target_group" {
 resource "aws_lb_listener" "app_lb_listener" {
   load_balancer_arn = aws_lb.app_load_balancer.arn
   port              = 80
-  protocol          = "HTTPS"
+  protocol          = "HTTP"
   //certificate_arn = ""
 
   default_action {
@@ -235,9 +238,9 @@ resource "aws_db_instance" "app_rds" {
   engine_version    = "8.0"
   instance_class    = "db.t2.small"
   identifier        = var.rds_identifier_name
-  username          = "admin"
+  username          = var.rds_username
   //manage_master_user_password = true
-  password = "admin123"
+  password = var.rds_password
   //deletion_protection = true
   skip_final_snapshot = true
 
