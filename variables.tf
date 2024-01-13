@@ -48,12 +48,12 @@ variable "rds_identifier_name" {
 
 variable "rds_username" {
   description = "rds username"
-  type = string
-  default = "admin"
+  type        = string
+  default     = "admin"
 }
 
 variable "rds_password" {
   description = "rds password"
-  type = string
-  default = "Admin123"
+  type        = string
+  default     = "Admin123"
 }

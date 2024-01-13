@@ -1,4 +1,4 @@
-output "rds_endpoint" {
+output "db_endpoint" {
   value = aws_db_instance.app_rds.endpoint
 }
 
@@ -12,10 +12,4 @@ output "private_subnet" {
 
 output "public_subnet" {
   value = aws_subnet.public_subnet
-}
-
-#subnet_id's
-
-output "private_subnet_ids" {
-  value = aws_subnet.private_subnet.*.id
 }

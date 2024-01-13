@@ -5,7 +5,7 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
 
   tags = {
-    name = "main"
+    Name = "main"
   }
 }
 
@@ -18,7 +18,7 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    name = "public_subnet ${count.index + 1}"
+    Name = "public_subnet ${count.index + 1}"
   }
 }
 
@@ -38,7 +38,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    name = "main_igw"
+    Name = "main_igw"
   }
 }
 
@@ -52,9 +52,14 @@ resource "aws_route_table" "public_subnet_rt" {
   }
 
   tags = {
-    name = "public_subnet_rt"
+    Name = "public_subnet_rt"
   }
 }
+
+/*resource "aws_route_table_association" "public_subnet_rt_association" {
+  subnet_id = aws_subnet.public_subnet[*].id
+  route_table_id = aws_route_table.public_subnet_rt.id
+}*/
 
 #flow logs for vpc
 
@@ -70,7 +75,7 @@ resource "aws_s3_bucket" "flow_log_bucket" {
   force_destroy = true
 
   tags = {
-    name = "flow_log_bucket"
+    Name = "flow_log_bucket"
   }
 }
 
@@ -138,7 +143,7 @@ resource "aws_launch_template" "app_launch_template" {
   name = "app_launch_template"
 
   block_device_mappings {
-    device_name = "dev/sdf"
+    device_name = "/dev/sdf"
 
     ebs {
       volume_size           = 8
@@ -172,22 +177,22 @@ resource "aws_autoscaling_group" "app_auto_scaling" {
     version = "$Latest"
   }
 
-  target_group_arns = [ 
+  target_group_arns = [
     aws_lb.app_load_balancer.arn
-   ]
+  ]
 
-   health_check_grace_period = 300
-   health_check_type = "ELB"
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
 }
 
 #load balancer
 resource "aws_lb" "app_load_balancer" {
-  name                       = var.app_load_balancer_name
-  internal                   = false
-  load_balancer_type         = "application"
-  security_groups            = [aws_security_group.load_balancer_security_group.id]
-  subnets                    = aws_subnet.public_subnet[*].id
-  enable_deletion_protection = true
+  name               = var.app_load_balancer_name
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.load_balancer_security_group.id]
+  subnets            = aws_subnet.public_subnet[*].id
+  //enable_deletion_protection = true
 
 }
 
@@ -217,7 +222,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
   subnet_ids = aws_subnet.private_subnet[*].id
 
   tags = {
-    name = "rds subnet group"
+    Name = "rds subnet group"
   }
 
 }
@@ -227,7 +232,7 @@ resource "aws_kms_key" "rds_kms_key" {
   deletion_window_in_days = 30
 
   tags = {
-    name = "rdskey"
+    Name = "rdskey"
   }
 }
 
@@ -259,6 +264,30 @@ resource "aws_db_instance" "app_rds" {
 
   multi_az = true
 
+}
+
+#parameter store
+
+resource "aws_ssm_parameter" "db_endpoint" {
+  name        = "/test/db_endpoint"
+  type        = "String"
+  description = "Master DB endpoint"
+  value       = aws_db_instance.app_rds.endpoint
+
+}
+
+resource "aws_ssm_parameter" "db_username" {
+  name        = "/test/db_username"
+  type        = "String"
+  description = "Master DB username"
+  value       = var.rds_username
+}
+
+resource "aws_ssm_parameter" "db_password" {
+  name        = "/test/db_password"
+  type        = "SecureString"
+  description = "Master DB password"
+  value       = var.rds_password
 }
 
 #route53
