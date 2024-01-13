@@ -56,10 +56,11 @@ resource "aws_route_table" "public_subnet_rt" {
   }
 }
 
-/*resource "aws_route_table_association" "public_subnet_rt_association" {
-  subnet_id = aws_subnet.public_subnet[*].id
+resource "aws_route_table_association" "public_subnet_rt_association" {
+  count = 2
+  subnet_id      = element(aws_subnet.public_subnet[*].id, count.index)
   route_table_id = aws_route_table.public_subnet_rt.id
-}*/
+}
 
 #flow logs for vpc
 
@@ -159,6 +160,10 @@ resource "aws_launch_template" "app_launch_template" {
     enabled = true
   }
 
+  iam_instance_profile {
+    name = "ec2-instance-profile"
+  }
+
   user_data = base64encode("user-data.sh")
   //user_data = templatefile("user-data.sh", {rds_endpoint = {output = "rds_endpoint" }} )
 }
@@ -178,7 +183,7 @@ resource "aws_autoscaling_group" "app_auto_scaling" {
   }
 
   target_group_arns = [
-    aws_lb.app_load_balancer.arn
+    aws_lb_target_group.app_lb_target_group.arn
   ]
 
   health_check_grace_period = 300
@@ -269,25 +274,73 @@ resource "aws_db_instance" "app_rds" {
 #parameter store
 
 resource "aws_ssm_parameter" "db_endpoint" {
-  name        = "/test/db_endpoint"
+  name        = "/myapp/db_endpoint"
   type        = "String"
   description = "Master DB endpoint"
   value       = aws_db_instance.app_rds.endpoint
 
 }
 
-resource "aws_ssm_parameter" "db_username" {
-  name        = "/test/db_username"
+resource "aws_ssm_parameter" "db_user" {
+  name        = "/myapp/db_user"
   type        = "String"
   description = "Master DB username"
   value       = var.rds_username
 }
 
 resource "aws_ssm_parameter" "db_password" {
-  name        = "/test/db_password"
+  name        = "/myapp/db_password"
   type        = "SecureString"
   description = "Master DB password"
   value       = var.rds_password
+}
+
+#IAM role
+
+resource "aws_iam_role" "get_parameters" {
+  name = "get-parameters"
+  //assume_role_policy = data.aws_iam_policy_document.get_parameters_source
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "get_parameters" {
+  name = "get-parameters"
+  //policy = data.aws_iam_policy_document.get_parameters_destination
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ssm:GetParameters",
+          "ssm:GetParameter",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "get-parameter" {
+  role = aws_iam_role.get_parameters.name
+  policy_arn = aws_iam_policy.get_parameters.arn
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2-instance-profile"
+  role = aws_iam_role.get_parameters.name
 }
 
 #route53
