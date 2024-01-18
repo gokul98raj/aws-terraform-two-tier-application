@@ -57,7 +57,7 @@ resource "aws_route_table" "public_subnet_rt" {
 }
 
 resource "aws_route_table_association" "public_subnet_rt_association" {
-  count = 2
+  count          = 2
   subnet_id      = element(aws_subnet.public_subnet[*].id, count.index)
   route_table_id = aws_route_table.public_subnet_rt.id
 }
@@ -161,20 +161,18 @@ resource "aws_launch_template" "app_launch_template" {
   }
 
   iam_instance_profile {
-    name = "ec2-instance-profile"
+    name = "AmazonSSMRoleForInstancesQuickSetup"
   }
 
   user_data = base64encode("user-data.sh")
-  //user_data = templatefile("user-data.sh", {rds_endpoint = {output = "rds_endpoint" }} )
 }
 
 #autoscaling group
 resource "aws_autoscaling_group" "app_auto_scaling" {
-  name             = "app_auto_scaling"
-  min_size         = 2
-  max_size         = 5
-  desired_capacity = 2
-  //vpc_zone_identifier = [aws_subnet.public_subnet.id]
+  name                = "app_auto_scaling"
+  min_size            = 2
+  max_size            = 5
+  desired_capacity    = 2
   vpc_zone_identifier = aws_subnet.public_subnet[*].id
 
   launch_template {
@@ -249,6 +247,7 @@ resource "aws_db_instance" "app_rds" {
   instance_class    = "db.t2.small"
   identifier        = var.rds_identifier_name
   username          = var.rds_username
+  db_name           = "myapp"
   //manage_master_user_password = true
   password = var.rds_password
   //deletion_protection = true
@@ -294,54 +293,3 @@ resource "aws_ssm_parameter" "db_password" {
   description = "Master DB password"
   value       = var.rds_password
 }
-
-#IAM role
-
-resource "aws_iam_role" "get_parameters" {
-  name = "get-parameters"
-  //assume_role_policy = data.aws_iam_policy_document.get_parameters_source
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_policy" "get_parameters" {
-  name = "get-parameters"
-  //policy = data.aws_iam_policy_document.get_parameters_destination
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ssm:GetParameters",
-          "ssm:GetParameter",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "get-parameter" {
-  role = aws_iam_role.get_parameters.name
-  policy_arn = aws_iam_policy.get_parameters.arn
-}
-
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2-instance-profile"
-  role = aws_iam_role.get_parameters.name
-}
-
-#route53
-#Certificate manager
