@@ -137,6 +137,13 @@ resource "aws_security_group" "rds_security_group" {
     security_groups = ["${aws_security_group.servers_security_group.id}"]
   }
 
+   egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 }
 
 #launch template
@@ -156,6 +163,7 @@ resource "aws_launch_template" "app_launch_template" {
   image_id      = data.aws_ami.amazon_linux_ami.id
   instance_type = var.instance_type
   key_name      = "ap-south-1"
+  vpc_security_group_ids = [ aws_security_group.servers_security_group.id ]
   monitoring {
     enabled = true
   }

@@ -11,7 +11,7 @@ sudo yum install python3 -y
 sudo yum install python3-pip -y
 
 # Install Flask and pymysql
-sudo pip3 install flask pymysql boto3
+sudo pip3 install flask pymysql boto3 requests
 
 # Install AWS CLI
 sudo pip3 install awscli --upgrade
