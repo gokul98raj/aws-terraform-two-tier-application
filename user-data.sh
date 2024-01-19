@@ -16,6 +16,9 @@ sudo pip3 install flask pymysql boto3 requests
 # Install AWS CLI
 sudo pip3 install awscli --upgrade
 
+# Change Directory
+cd /home/ec2-user/
+
 # Clone your Flask application repository from GitHub
 git clone https://github.com/gokul98raj/Login-with-python.git
 
