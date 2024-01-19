@@ -172,7 +172,7 @@ resource "aws_launch_template" "app_launch_template" {
     name = "AmazonSSMRoleForInstancesQuickSetup"
   }
 
-  user_data = base64encode("user-data.sh")
+  user_data = filebase64("user-data.sh")
 }
 
 #autoscaling group
