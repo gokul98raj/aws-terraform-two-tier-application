@@ -284,7 +284,7 @@ resource "aws_ssm_parameter" "db_endpoint" {
   name        = "/myapp/db_endpoint"
   type        = "String"
   description = "Master DB endpoint"
-  value       = aws_db_instance.app_rds.endpoint
+  value       = aws_db_instance.app_rds.address
 
 }
 
