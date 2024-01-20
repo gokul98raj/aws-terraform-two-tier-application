@@ -46,6 +46,12 @@ variable "rds_identifier_name" {
   default     = "app-rds"
 }
 
+variable "rds_db_name" {
+  description = "DB name"
+  type = string
+  default = "myapp"
+}
+
 variable "rds_username" {
   description = "rds username"
   type        = string

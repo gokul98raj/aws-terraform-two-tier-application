@@ -269,7 +269,7 @@ resource "aws_db_instance" "app_rds" {
   instance_class      = "db.t2.small"
   identifier          = var.rds_identifier_name
   username            = var.rds_username
-  db_name             = "myapp"
+  db_name             = var.rds_db_name
   password            = var.rds_password
   skip_final_snapshot = true
 
