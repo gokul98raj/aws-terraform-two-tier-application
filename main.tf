@@ -137,7 +137,7 @@ resource "aws_security_group" "rds_security_group" {
     security_groups = ["${aws_security_group.servers_security_group.id}"]
   }
 
-   egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -160,10 +160,10 @@ resource "aws_launch_template" "app_launch_template" {
     }
   }
 
-  image_id      = data.aws_ami.amazon_linux_ami.id
-  instance_type = var.instance_type
-  key_name      = "ap-south-1"
-  vpc_security_group_ids = [ aws_security_group.servers_security_group.id ]
+  image_id               = data.aws_ami.amazon_linux_ami.id
+  instance_type          = var.instance_type
+  key_name               = "ap-south-1"
+  vpc_security_group_ids = [aws_security_group.servers_security_group.id]
   monitoring {
     enabled = true
   }
@@ -248,17 +248,15 @@ resource "aws_kms_key" "rds_kms_key" {
 }
 
 resource "aws_db_instance" "app_rds" {
-  allocated_storage = 10
-  storage_type      = "gp2"
-  engine            = "mysql"
-  engine_version    = "8.0"
-  instance_class    = "db.t2.small"
-  identifier        = var.rds_identifier_name
-  username          = var.rds_username
-  db_name           = "myapp"
-  //manage_master_user_password = true
-  password = var.rds_password
-  //deletion_protection = true
+  allocated_storage   = 10
+  storage_type        = "gp2"
+  engine              = "mysql"
+  engine_version      = "8.0"
+  instance_class      = "db.t2.small"
+  identifier          = var.rds_identifier_name
+  username            = var.rds_username
+  db_name             = "myapp"
+  password            = var.rds_password
   skip_final_snapshot = true
 
 
@@ -303,8 +301,8 @@ resource "aws_ssm_parameter" "db_password" {
 }
 
 resource "aws_ssm_parameter" "db_name" {
-  name = "/myapp/db_name"
-  type = "String"
+  name        = "/myapp/db_name"
+  type        = "String"
   description = "DB Name"
-  value = aws_db_instance.app_rds.db_name
+  value       = aws_db_instance.app_rds.db_name
 }
