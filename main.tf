@@ -196,6 +196,20 @@ resource "aws_autoscaling_group" "app_auto_scaling" {
   health_check_type         = "ELB"
 }
 
+#Auto Scaling Policy
+
+resource "aws_autoscaling_policy" "app_scaling_policy" {
+  name = "app_sacling_policy"
+  policy_type = "TargetTrackingScaling"
+  autoscaling_group_name = aws_autoscaling_group.app_auto_scaling.name
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = "70"
+  }
+}
+
 #load balancer
 resource "aws_lb" "app_load_balancer" {
   name               = var.app_load_balancer_name
