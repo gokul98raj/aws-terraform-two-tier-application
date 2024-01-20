@@ -301,3 +301,10 @@ resource "aws_ssm_parameter" "db_password" {
   description = "Master DB password"
   value       = var.rds_password
 }
+
+resource "aws_ssm_parameter" "db_name" {
+  name = "/myapp/db_name"
+  type = "String"
+  description = "DB Name"
+  value = aws_db_instance.app_rds.db_name
+}
