@@ -2,7 +2,6 @@
 variable "region" {
   description = "Region to build this setup"
   type        = string
-  default     = "ap-south-1"
 }
 
 #vpc
@@ -43,23 +42,25 @@ variable "app_load_balancer_name" {
 variable "rds_identifier_name" {
   description = "rds identifier name"
   type        = string
-  default     = "app-rds"
 }
 
 variable "rds_db_name" {
   description = "DB name"
   type = string
-  default = "myapp"
 }
 
 variable "rds_username" {
   description = "rds username"
   type        = string
-  default     = "admin"
 }
 
 variable "rds_password" {
   description = "rds password"
   type        = string
-  default     = "Admin123"
+}
+
+variable "key_pair" {
+  description = "Key pair to connect with your instance if you want"
+  type = string
+  default = "ap-south-1"
 }

@@ -29,7 +29,7 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
 
   tags = {
-    name = "private_subnet ${count.index + 1}"
+    Name = "private_subnet ${count.index + 1}"
   }
 }
 
@@ -162,7 +162,7 @@ resource "aws_launch_template" "app_launch_template" {
 
   image_id               = data.aws_ami.amazon_linux_ami.id
   instance_type          = var.instance_type
-  key_name               = "ap-south-1"
+  key_name               = var.key_pair
   vpc_security_group_ids = [aws_security_group.servers_security_group.id]
   monitoring {
     enabled = true
@@ -217,7 +217,6 @@ resource "aws_lb" "app_load_balancer" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.load_balancer_security_group.id]
   subnets            = aws_subnet.public_subnet[*].id
-  //enable_deletion_protection = true
 
 }
 
@@ -232,7 +231,6 @@ resource "aws_lb_listener" "app_lb_listener" {
   load_balancer_arn = aws_lb.app_load_balancer.arn
   port              = 80
   protocol          = "HTTP"
-  //certificate_arn = ""
 
   default_action {
     type             = "forward"
