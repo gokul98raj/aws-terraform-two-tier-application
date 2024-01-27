@@ -1,0 +1,5 @@
+region = ""
+rds_identifier_name = ""
+rds_db_name = ""
+rds_username = ""
+rds_password = ""
