@@ -84,11 +84,11 @@ resource "aws_s3_bucket" "flow_log_bucket" {
 #security group for loadbalancer
 resource "aws_security_group" "load_balancer_security_group" {
   name        = "load_balancer_security_group"
-  description = "security group for load balancer to allow https request from users"
+  description = "security group for load balancer to allow http request from users"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "https"
+    description = "http"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
