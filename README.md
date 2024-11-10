@@ -6,6 +6,7 @@ This Terraform project deploys a two-tier web server architecture on AWS. The in
 
 * Terraform installed on your local machine.
 * AWS account with appropriate IAM permissions for managing ALB, EC2, VPC, security groups, and IAM roles.
+* Backend S3 and DynamoDB setup ready for store terraform statefile with statelock feature.
 
 ## Architecture
 
@@ -60,13 +61,20 @@ terraform destroy
 
 ## Variables
 
-The following varoables can be customized in the `terraform.tfvars` file:
+The following variables can be customized in the `terraform.tfvars` file:
 
 * `region`: AWS region for deployment.
 * `rds_identifier_name`: DB identifier name for an application.
 * `rds creds`: Credentials to be used for RDS.
 
 Refer to `variables.tf` for a complete list of configurable parameters.
+
+## Backend
+
+The following backend configuration can be setup in `backend.tf` file:
+
+* `bucket`: bucket name which state file to be stored.
+* `dynamodb_table`: db table name for state locking.
 
 ## Outputs
 
