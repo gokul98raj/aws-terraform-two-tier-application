@@ -222,14 +222,14 @@ resource "aws_lb" "app_load_balancer" {
 
 resource "aws_lb_target_group" "app_lb_target_group" {
   name     = "app-lb-target-group"
-  port     = 80
+  port     = var.app_lb_listener_port
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 }
 
 resource "aws_lb_listener" "app_lb_listener" {
   load_balancer_arn = aws_lb.app_load_balancer.arn
-  port              = 80
+  port              = var.app_lb_listener_port
   protocol          = "HTTP"
 
   default_action {

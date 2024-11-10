@@ -60,12 +60,11 @@ terraform destroy
 
 ## Variables
 
-The following variables can be customized in the `terraform.tfvars` file:
+The following varoables can be customized in the `terraform.tfvars` file:
 
 * `region`: AWS region for deployment.
-* `instance_type`: EC2 instance type for web servers.
-* `alb_listener_port`: Port for the ALB listener (default: 80).
-* `webserver_ami_id`: AMI ID for the EC2 instances.
+* `rds_identifier_name`: DB identifier name for an application.
+* `rds creds`: Credentials to be used for RDS.
 
 Refer to `variables.tf` for a complete list of configurable parameters.
 
@@ -74,4 +73,3 @@ Refer to `variables.tf` for a complete list of configurable parameters.
 The following outputs are available after deployment:
 
 * `alb_dns`: DNS name of the Application Load Balancer.
-* `instance_ids`: IDs of the deployed EC2 instances.

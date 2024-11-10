@@ -38,6 +38,12 @@ variable "app_load_balancer_name" {
   default     = "app-load-balancer"
 }
 
+variable "app_lb_listener_port" {
+  description = "Listener Port"
+  type = number
+  default = 80
+}
+
 #rds
 variable "rds_identifier_name" {
   description = "rds identifier name"
